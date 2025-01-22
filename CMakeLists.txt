@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1.0)
 
-project(CLoN LANGUAGES CXX)
+project(CloCK LANGUAGES CXX)
 
 include(CTest)
 set (CMAKE_CXX_STANDARD 17)
@@ -21,8 +21,8 @@ if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64") # for Raspberry Pi
   pkg_check_modules(LIBCAMERA REQUIRED IMPORTED_TARGET libcamera)
   include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/.. ${LIBCAMERA_INCLUDE_DIRS} ${OPENCV_INCLUDE_DIRS})
   include(GNUInstallDirs)
-  add_executable(targetless custom.h targetless.cpp) #simple obstacle avoidance
-  target_link_libraries(targetless ${OpenCV_LIBS} iir::iir_static box2d alphabot a1lidarrpi CLoN pigpio PkgConfig::LIBCAMERA cam2opencv)
+  add_executable(demo custom.h demo.cpp)
+  target_link_libraries(demo ${OpenCV_LIBS} iir::iir_static box2d alphabot a1lidarrpi CloCK pigpio PkgConfig::LIBCAMERA cam2opencv)
   message("detected architecture aarch64, building executables")
 endif()
 
