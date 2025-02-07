@@ -2,13 +2,14 @@
 #define TASK_H
 #include "measurement.h"
  
-b2Fixture * GetSensor(b2Body * body);
+b2Fixture * GetSensor(b2Body * body); //gets a sensor from a robot body
 
-b2Body * GetDisturbance(b2World *);
+b2Body * GetDisturbance(b2World *); //gets disturbance from world
 
-bool overlaps(b2Body *, b2Body *);
+bool overlaps(b2Body *, b2Body *); //does the robot sensor overlap with disturbance? using disturbance body
 
-bool overlaps(b2Body *, Disturbance *);
+bool overlaps(b2Body *, Disturbance *);//does the robot sensor overlap with disturbance? using disturbance features
+
 
 
 class Task{
@@ -156,7 +157,7 @@ Task(Disturbance ob, Direction d, b2Transform _start=b2Transform(b2Vec2(0.0, 0.0
 }
 
 
-simResult willCollide(b2World &, int, b2Body *,bool debug =0, float remaining = SIM_DURATION, float simulationStep=BOX2DRANGE);
+simResult willCollide(b2World &, int, b2Body *,bool debug =0, float remaining = SIM_DURATION, float simulationStep=BOX2DRANGE); //gets simulation data: new disturbances? details of motor behaviour...
 
 EndCriteria getEndCriteria(const Disturbance&);
 
@@ -223,7 +224,7 @@ class Listener : public b2ContactListener { //call-back based, returns a collisi
     };
 
 
-struct Correct{
+struct Correct{ //not used yet, outline of trajectory control
     
     Correct(){}
 
@@ -309,7 +310,7 @@ AffordanceIndex getAffIndex(){
     return affordance;
 }
 
-
+//generate motor output (Agent transfer function)
 Direction H(Disturbance, Direction, bool topDown=0); //topDown enables Configurator topdown control on reactive behaviour
 
 
@@ -317,10 +318,10 @@ void setEndCriteria(Angle angle=SAFE_ANGLE, Distance distance=BOX2DRANGE);
 
 void setEndCriteria(const Distance& distance);
 
-void setErrorWeights();
-
+//check if task has ended from the robot's position 
 EndedResult checkEnded(b2Transform robotTransform = b2Transform(b2Vec2(0.0, 0.0), b2Rot(0.0)), Direction dir=UNDEFINED, bool relax=0, b2Body* robot=NULL, std::pair<bool,b2Transform> use_start= std::pair <bool,b2Transform>(1, b2Transform(b2Vec2(0.0, 0.0), b2Rot(0.0))));
 
+//check if task has ended from a state's end position 
 EndedResult checkEnded(State, Direction dir=UNDEFINED, bool relax=false, std::pair<bool,b2Transform> use_start= std::pair <bool,b2Transform>(1, b2Transform(b2Vec2(0.0, 0.0), b2Rot(0.0)))); //usually used to check against control goal
 
 };

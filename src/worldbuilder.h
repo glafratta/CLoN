@@ -9,7 +9,7 @@ class WorldBuilder{
         struct CompareCluster{
         CompareCluster()=default;
 
-        bool operator()(const BodyFeatures & b1, const BodyFeatures & b2){ //distances of centre from start
+        bool operator()(const BodyFeatures & b1, const BodyFeatures & b2){ //orders points by angle first, then if same angle, distances of centre from start
             bool result=false;
             if (fabs(atan2(b1.pose.p.y, b1.pose.p.x))< fabs(atan2(b2.pose.p.y, b2.pose.p.x)) && b1.pose.p.Length()<= b2.pose.p.Length()){
                 result=true;
@@ -29,7 +29,7 @@ class WorldBuilder{
 
     std::vector <BodyFeatures> processData(const CoordinateContainer&, const b2Transform&);
 
-    std::vector <BodyFeatures> cluster_data(CoordinateContainer, const b2Transform&, CLUSTERING clustering=PARTITION);
+    std::vector <BodyFeatures> cluster_data(CoordinateContainer, const b2Transform&, CLUSTERING clustering=PARTITION); //generates objects parameters (bodyfeatures) from the raw poitn cloud
 
     bool checkDisturbance(Pointf, bool&,Task * curr =NULL, float range=0.025);
 
@@ -71,11 +71,11 @@ class WorldBuilder{
     return result;
 }
 
-std::pair <bool, BodyFeatures> bounding_rotated_box(std::vector <cv::Point2f>nb); //gets w
+std::pair <bool, BodyFeatures> bounding_rotated_box(std::vector <cv::Point2f>nb); //getting disturbance as rotated box (as opposed to upright)
 
-    std::vector <std::vector<cv::Point2f>> kmeans_clusters( std::vector <cv::Point2f>, std::vector <cv::Point2f>&);
+    std::vector <std::vector<cv::Point2f>> kmeans_clusters( std::vector <cv::Point2f>, std::vector <cv::Point2f>&); //makes clusters using kmeans algorithm
 
-    std::vector <std::vector<cv::Point2f>> partition_clusters( std::vector <cv::Point2f>);
+    std::vector <std::vector<cv::Point2f>> partition_clusters( std::vector <cv::Point2f>); //make clusters using the partition algorithm
 
     b2Vec2 averagePoint(CoordinateContainer, Disturbance &, float rad = 0.025); //finds centroid of a poitn cluster, return position vec difference
 

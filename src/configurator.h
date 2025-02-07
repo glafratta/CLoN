@@ -86,7 +86,7 @@ simResult simulate(Task, b2World &, float _simulationStep=BOX2DRANGE);
 
 void trackDisturbance(b2Transform &, Task::Action, float); //open loop
 
-void adjustStepDistance(vertexDescriptor, TransitionSystem &, Task*, float&, std::pair<bool,vertexDescriptor> tgt=std::pair(false,TransitionSystem::null_vertex()));
+void adjustStepDistance(vertexDescriptor, TransitionSystem &, Task*, float&, std::pair<bool,vertexDescriptor> tgt=std::pair(false,TransitionSystem::null_vertex())); //adjusts the task to be simulated based on how far along execution it is in the real world
 
 std::pair <bool, Direction> getOppositeDirection(Direction);
 

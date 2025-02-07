@@ -56,18 +56,18 @@ typedef std::set<Pointf> CoordinateContainer;
 b2Vec2 getb2Vec2(cv::Point2f );
 
 template <typename T>
-Pointf getPointf(T);
+Pointf getPointf(T); //creates a Pointf from template point (T type must have x and y)
 
 // template <typename T>
 // cv::Point2f getPoint2f(T);
 
-Pointf Polar2f(float, float);
+Pointf Polar2f(float, float); //points from its polar coordinates
 
 template <typename T>
-std::vector<T> set2vec(std::set<T>);
+std::vector<T> set2vec(std::set<T>); //makes set into a vector
 
 template <typename T>
-std::vector<cv::Point2f> set2vec2f(std::set<T> s){
+std::vector<cv::Point2f> set2vec2f(std::set<T> s){ //makes a set into a vector of cv::Point2f
     std::vector <cv::Point2f> vec;
     for (T t:s){
         vec.push_back(cv::Point2f(t.x, t.y));
@@ -79,7 +79,7 @@ std::vector<cv::Point2f> set2vec2f(std::set<T> s){
 // std::vector<cv::Point2f> set2vec_cv(std::set<T>);
 
 template <typename T>
-std::set<T> vec2set(std::vector<T> vec){
+std::set<T> vec2set(std::vector<T> vec){ //vector to set
 	std::set <T> set;
     for (T t:vec){
         set.emplace(t);
@@ -88,7 +88,7 @@ std::set<T> vec2set(std::vector<T> vec){
 }
 
 
-class PointCloudProc{
+class PointCloudProc{ //not used but could be useful
 	friend ConfiguratorInterface;
 	friend Configurator;
     std::vector <Pointf> previous;
@@ -98,7 +98,7 @@ class PointCloudProc{
 
     b2Transform affineTransEstimate(std::vector <Pointf>, Task::Action, float timeElapsed=0.2, float range=1.0);
 
-	std::vector<Pointf> neighbours(b2Vec2,float radius, std::vector <Pointf> data= std::vector <Pointf>()); //finds if there are bodies close to a point. Used for 
+	std::vector<Pointf> neighbours(b2Vec2,float radius, std::vector <Pointf> data= std::vector <Pointf>()); //finds if there are bodies close to a point
 
 	std::pair <bool, b2Vec2>  findOrientation(std::vector<Pointf> ); //finds  average slope of line passign through two points in a radius of 2.5 cm. Assumes low clutter 
 
