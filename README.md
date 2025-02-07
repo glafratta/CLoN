@@ -1,4 +1,9 @@
-Reactive library simplified from CLoCK, template for experimenting with closed-loop task execution
+Reactive library simplified from CLoCK, template for experimenting with closed-loop task execution.
+
+Background:
+- a Task is a closed-loop behaviour with a fixed motor output (Direction), but centered around a specific object (Disturbance)
+- the properties of the Disturbance (position, dimensions) determine the duration of a Task
+- by simulating Tasks in Box2D, the Configurator can identify Disturbances in the environment (e.g. obstacles)
 
 ## Hardware
 The indoor robot is equipped with 
