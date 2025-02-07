@@ -25,7 +25,7 @@ public:
 		
 	}
 
-	static std::vector<b2Vec2> zero_vertices(){
+	static std::vector<b2Vec2> zero_vertices(){ //vertices assuming robot is at position 0,0,0
 		b2Vec2 bl(-ROBOT_HALFWIDTH+ROBOT_BOX_OFFSET_X, -ROBOT_HALFLENGTH+ROBOT_BOX_OFFSET_Y);
 		b2Vec2 br(ROBOT_HALFWIDTH+ROBOT_BOX_OFFSET_X, -ROBOT_HALFLENGTH+ROBOT_BOX_OFFSET_Y);
 		b2Vec2 tl(-ROBOT_HALFWIDTH+ROBOT_BOX_OFFSET_X, ROBOT_HALFLENGTH+ROBOT_BOX_OFFSET_Y);

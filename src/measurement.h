@@ -3,7 +3,7 @@
 #include "graphTools.h" 
 
 
-class Measurement{
+class Measurement{ //a class to set angle and distance as end criteria 
 protected:
     bool valid =0;
     float value=0;
@@ -52,7 +52,7 @@ class Distance: public Measurement{
     valid =1;}
 };
 
-struct EndCriteria{
+struct EndCriteria{ //end criteria: distance and angle from disturbance to consider a task as ended
     Angle angle;
     Distance distance;    //max distance, ideal
     bool outOfSight=true;
@@ -74,7 +74,7 @@ struct EndedResult{
 };
 
 
-float SignedVectorLength(b2Vec2);
+float SignedVectorLength(b2Vec2); 
 
 
 #endif

@@ -216,7 +216,7 @@ public:
 }; //sub action f
 
 
-struct simResult{
+struct simResult{ //simulation results
     enum resultType {successful =0, crashed =1, safeForNow=2}; //successful means no collisions, finished means target reached, for later
     resultType resultCode= resultType::successful;
     Disturbance collision;

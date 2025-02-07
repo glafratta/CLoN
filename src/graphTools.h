@@ -18,10 +18,10 @@
 #include "disturbance.h"
 
 
-float angle_subtract(float a1, float a2);
+float angle_subtract(float a1, float a2); //subtracts angles accounting for the fact that they're represented in a range of +/-pi
 
 
-
+//elements of cognitive map
 struct Edge{
 	Direction direction=DEFAULT;
 	int step=0; //to be removed
