@@ -8,6 +8,9 @@ b2Body * GetDisturbance(b2World *);
 
 bool overlaps(b2Body *, b2Body *);
 
+bool overlaps(b2Body *, Disturbance *);
+
+
 class Task{
 
 public:
@@ -158,7 +161,7 @@ simResult willCollide(b2World &, int, b2Body *,bool debug =0, float remaining = 
 EndCriteria getEndCriteria(const Disturbance&);
 
 
-class Listener : public b2ContactListener {
+class Listener : public b2ContactListener { //call-back based, returns a collision when it occurs in the simulation
  // int iteration=1;
     Disturbance * d_ptr;
     public:

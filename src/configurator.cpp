@@ -116,9 +116,6 @@ void Configurator::run(Configurator * c){
 void Configurator::adjustStepDistance(vertexDescriptor v, TransitionSystem &g, Task * t, float& step, std::pair<bool,vertexDescriptor> tgt){
 	std::pair<edgeDescriptor, bool> ep= boost::edge(v, currentVertex, g);
 
-	// if (tgt.first & !g[v].disturbance.isValid()){
-	// 	step = (g[v].endPose.p- g[tgt.second].endPose.p).Length();
-	// }
 	if(!ep.second){ //no tgt	
 		return; //check until needs to be checked
 	}

@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+//MATH
+const float DEG_TO_RAD_K=0.01745329252;
 //SENSORS/EFFECTORS
 const float MOTOR_CALLBACK =.1; //MOTOR CALL BACK EVERY .1 s
 const float LIDAR_RANGE =1.1;

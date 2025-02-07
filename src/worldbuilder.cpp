@@ -29,6 +29,38 @@ std::pair<Pointf, Pointf> WorldBuilder::bounds(Direction d, b2Transform start, f
     }
 
 
+std::pair <bool, BodyFeatures> WorldBuilder::bounding_rotated_box(std::vector <cv::Point2f>nb){
+    for (cv::Point2f & p: nb){
+        p.x= round(p.x*100)/100;
+        p.y=round(p.y*100)/100;
+    }
+    std::pair <bool, BodyFeatures> result(0, BodyFeatures());
+    if (nb.empty()){
+        return result;
+    }
+    cv::RotatedRect rotated_rect = cv::minAreaRect(nb);
+    if (rotated_rect.size.width>rotated_rect.size.height){
+        result.second.setHalfLength(rotated_rect.size.width/2); //NVM THIS ///THEY ARE SWAPPED IN OPENCV DO NOT TOUCH
+        result.second.setHalfWidth(rotated_rect.size.height/2);
+        if (rotated_rect.angle>90){
+            rotated_rect.angle-=90;
+        }
+        else{
+            rotated_rect.angle+=90;
+        }
+    }
+    else{
+        result.second.setHalfLength(rotated_rect.size.height/2); //NVM THIS ///THEY ARE SWAPPED IN OPENCV DO NOT TOUCH
+        result.second.setHalfWidth(rotated_rect.size.width/2);
+    }
+    result.second.pose.p=b2Vec2(rotated_rect.center.x, rotated_rect.center.y);
+    float angle_rad=rotated_rect.angle*DEG_TO_RAD_K;
+    result.second.pose.q.Set(angle_rad);
+    result.second.pose.q.Set(atan(result.second.pose.q.s/result.second.pose.q.c));
+    result.first=true;
+    return result;
+}
+
 std::vector <std::vector<cv::Point2f>> WorldBuilder::kmeans_clusters( std::vector <cv::Point2f> points,std::vector <cv::Point2f> &centers){
     
     const int MAX_CLUSTERS=3, attempts =3, flags=cv::KMEANS_PP_CENTERS;
@@ -78,8 +110,9 @@ std::vector <BodyFeatures> WorldBuilder::cluster_data( CoordinateContainer pts, 
         clusters=partition_clusters(points);
     }
     for (int c=0; c<clusters.size(); c++){
-        if (std::pair<bool,BodyFeatures>feature=getOneFeature(clusters[c]); feature.first){
-            feature.second.pose.q.Set(start.q.GetAngle());
+        if (std::pair<bool,BodyFeatures>feature=bounding_rotated_box(clusters[c]); feature.first){
+           // feature.second.pose.q();
+           // feature.second.pose.q.Set(start.q.GetAngle()); //using robot's start position
             result.push_back(feature.second);
         }
     }
@@ -191,24 +224,18 @@ std::vector <BodyFeatures> WorldBuilder::getFeatures(CoordinateContainer current
     if (NULL!=task){
         pointer_to_track=&points_to_track;
     }
-    std::vector <BodyFeatures> features=getFeatures(current, start, d, boxLength, halfWindowWidth, clustering);
-    // if (occluded(current, disturbance)){
-    //     salient.first.emplace(getPointf(disturbance.getPosition()));
-    //     features.push_back(disturbance.bodyFeatures());
-    // }
     bool has_D=false;
     if (disturbance.getAffIndex()==AVOID && d==DEFAULT){
-        for (int i=0; i<features.size(); i++){
-            if (features[i].match(disturbance.bf)){
-                features[i]=disturbance.bf;
-                has_D=true;
-                features[i].attention=true;
-            }
+        std::vector <b2Vec2> d_vertices=disturbance.vertices();
+        for (b2Vec2 &v: d_vertices){
+            v=v-start.p;
         }
-        if (!has_D){
-            features.push_back(disturbance.bf);
-        }
+        auto maxx_it= std::max_element(d_vertices.begin(), d_vertices.end(), CompareX());
+        float maxx= maxx_it.base()->x;
+        boxLength=ROBOT_HALFLENGTH*2-ROBOT_BOX_OFFSET_X+maxx;
     }
+    std::vector <BodyFeatures> features=getFeatures(current, start, d, boxLength, halfWindowWidth, clustering);
+    
     for (BodyFeatures f: features){
         makeBody(world, f);
     }
@@ -286,14 +313,26 @@ b2Fixture * WorldBuilder::get_chassis(b2Body * r){
 
 b2AABB WorldBuilder::makeRobotSensor(b2Body* robotBody, Disturbance * goal){
 	b2AABB result;
-
     if (!goal->isValid()){
         return result;
     }
-	b2PolygonShape * poly_robo=(b2PolygonShape*)robotBody->GetFixtureList()->GetShape();
-	std::vector <b2Vec2> all_points=arrayToVec(poly_robo->m_vertices, poly_robo->m_count), d_vertices=goal->vertices();
+	std::vector <b2Vec2> robot_vertices;
+    b2Transform robot_transform=b2Transform_zero;
+    b2Vec2 robot_position(0,0);
+    if (NULL!=robotBody){
+        b2PolygonShape * poly_robo=(b2PolygonShape*)robotBody->GetFixtureList()->GetShape();
+        robot_vertices=arrayToVec(poly_robo->m_vertices, sizeof(poly_robo->m_vertices)/sizeof(b2Vec2));
+        robot_position=robotBody->GetLocalPoint(robotBody->GetPosition());
+        robot_transform=robotBody->GetTransform();
+    }
+    else{
+        robot_vertices=Robot::zero_vertices();
+    }
+    std::vector <b2Vec2> all_points=robot_vertices, d_vertices=goal->vertices();
 	for (b2Vec2 p: d_vertices){
-		p =robotBody->GetLocalPoint(p);
+        if (NULL!=robotBody){
+            p =robotBody->GetLocalPoint(p);
+        }
 		all_points.push_back(p);
 	}
 	float minx=(std::min_element(all_points.begin(),all_points.end(), CompareX())).base()->x;
@@ -303,14 +342,14 @@ b2AABB WorldBuilder::makeRobotSensor(b2Body* robotBody, Disturbance * goal){
 	float halfLength=(fabs(maxy-miny))/2; //
     float halfWidth=(fabs(maxx-minx))/2;
 	b2Vec2 centroid(maxx-halfWidth, maxy-halfLength);
-	b2Vec2 offset=centroid - robotBody->GetLocalPoint(robotBody->GetPosition());
+	b2Vec2 offset=centroid - robot_position;
 	b2PolygonShape shape;
 	shape.SetAsBox(halfWidth, halfLength, offset, 0);
 	b2FixtureDef fixtureDef;
 	fixtureDef.isSensor=true;
 	fixtureDef.shape=&shape;
 	robotBody->CreateFixture(&fixtureDef);
-	shape.ComputeAABB(&result, robotBody->GetTransform(), 0);
+	shape.ComputeAABB(&result, robot_transform, 0);
 	return result;
 	
 }
